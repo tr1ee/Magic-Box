@@ -10,7 +10,6 @@ import {
   History,
   Image as ImageIcon,
   Loader2,
-  Menu,
   Mic,
   Sparkles,
   Video,
@@ -64,24 +63,8 @@ const IMAGE_GALLERY_ROOT_MIGRATION_KEY = "magicBox.imageGalleryRoot.v1";
 const DOWNLOAD_TOOL_IDS = ["torrents", "images", "videos", "voice-clone", "file-transfer", "format-factory"];
 const IMAGE_SESSION_STORAGE_KEY = "magicBox.imageSession.v1";
 const VIDEO_SESSION_STORAGE_KEY = "magicBox.videoSession.v1";
-const OPENING_SEEN_STORAGE_KEY = "magicBox.openingSeen.v1";
 const ACTIVE_VIEW_STORAGE_KEY = "magicBox.activeView.v1";
 const TORRENT_SIDEBAR_WIDTH_STORAGE_KEY = "magicBox.torrentSidebarWidth.v1";
-const OPENING_NAV_ITEMS = [
-  { id: "toolbox", label: "Toolbox" },
-  { id: "images", label: "Downloads" },
-  { id: "voice-clone", label: "Voice Studio" },
-  { id: "history", label: "History" }
-];
-const OPENING_PARTICLES = Array.from({ length: 18 }, (_, index) => ({
-  id: index,
-  left: `${8 + ((index * 17) % 88)}%`,
-  top: `${12 + ((index * 23) % 76)}%`,
-  delay: `${-((index * 0.73) % 8)}s`,
-  duration: `${6.5 + (index % 5) * 1.2}s`,
-  size: `${2 + (index % 4)}px`
-}));
-
 function readStoredActiveView() {
   if (/^#\/assistant(?:\/|$)/u.test(window.location.hash)) return "assistant";
   try {
@@ -94,13 +77,6 @@ function readStoredActiveView() {
   }
 }
 
-function shouldShowOpeningPage() {
-  try {
-    return window.localStorage.getItem(OPENING_SEEN_STORAGE_KEY) !== "true";
-  } catch {
-    return true;
-  }
-}
 const IMAGE_SCAN_TIMEOUT_MS = 5 * 60 * 1000;
 const IMAGE_SCAN_TIMEOUT_MESSAGE = "Image scan took more than 5 minutes. Try scanning again or use a smaller page.";
 const VIDEO_SCAN_TIMEOUT_MS = 11 * 60 * 1000;
@@ -850,156 +826,6 @@ function videoDownloadNotice(result) {
   return `${result.downloaded} video(s) downloaded.`;
 }
 
-function StaggeredText({ baseDelay = 0, text }) {
-  return (
-    <span className="opening-staggered-text" aria-label={text}>
-      {Array.from(text).map((character, index) => (
-        <span
-          aria-hidden="true"
-          className="opening-character"
-          key={`${character}-${index}`}
-          style={{ "--character-delay": `${baseDelay + index * 0.055}s` }}
-        >
-          {character === " " ? "\u00A0" : character}
-        </span>
-      ))}
-    </span>
-  );
-}
-
-function OpeningPage({ onEnter }) {
-  const [isLeaving, setIsLeaving] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const transitionTimerRef = useRef(null);
-  const visualRef = useRef(null);
-
-  useEffect(() => () => window.clearTimeout(transitionTimerRef.current), []);
-
-  const enterApp = useCallback((destination = "toolbox") => {
-    if (isLeaving) {
-      return;
-    }
-    setIsLeaving(true);
-    setIsMenuOpen(false);
-    transitionTimerRef.current = window.setTimeout(() => onEnter(destination), 360);
-  }, [isLeaving, onEnter]);
-
-  const handlePointerMove = useCallback((event) => {
-    const visual = visualRef.current;
-    if (!visual) {
-      return;
-    }
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const horizontal = clampPaneSize((event.clientX - bounds.left) / bounds.width, 0, 1);
-    const vertical = clampPaneSize((event.clientY - bounds.top) / bounds.height, 0, 1);
-    visual.style.setProperty("--opening-shift-x", `${(horizontal - 0.5) * -18}px`);
-    visual.style.setProperty("--opening-shift-y", `${(vertical - 0.5) * -12}px`);
-    visual.style.setProperty("--opening-light-x", `${horizontal * 100}%`);
-    visual.style.setProperty("--opening-light-y", `${vertical * 100}%`);
-  }, []);
-
-  const resetPointerEffect = useCallback(() => {
-    const visual = visualRef.current;
-    if (!visual) {
-      return;
-    }
-    visual.style.setProperty("--opening-shift-x", "0px");
-    visual.style.setProperty("--opening-shift-y", "0px");
-    visual.style.setProperty("--opening-light-x", "48%");
-    visual.style.setProperty("--opening-light-y", "42%");
-  }, []);
-
-  return (
-    <main
-      className={classNames("opening-page", isLeaving && "is-leaving")}
-      aria-label="Magic Box opening page"
-      onPointerLeave={resetPointerEffect}
-      onPointerMove={handlePointerMove}
-    >
-      <div className="opening-visual" ref={visualRef} aria-hidden="true">
-        <div className="opening-organic-field" />
-        <div className="opening-portrait">
-          <img src="/assets/magic-box-girl.jpg" alt="" />
-        </div>
-        <div className="opening-light-field" />
-        <div className="opening-grain" />
-        <div className="opening-particles">
-          {OPENING_PARTICLES.map((particle) => (
-            <span
-              key={particle.id}
-              style={{
-                "--particle-delay": particle.delay,
-                "--particle-duration": particle.duration,
-                "--particle-size": particle.size,
-                left: particle.left,
-                top: particle.top
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <header className="opening-header">
-        <button className="opening-brand" type="button" onClick={() => enterApp("toolbox")}>
-          Magic Box
-        </button>
-
-        <nav className="opening-nav" aria-label="Opening destinations">
-          {OPENING_NAV_ITEMS.map((item) => (
-            <button key={item.id} type="button" onClick={() => enterApp(item.id)}>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          className="opening-menu-button"
-          type="button"
-          aria-label={isMenuOpen ? "Close opening menu" : "Open opening menu"}
-          aria-expanded={isMenuOpen}
-          onClick={() => setIsMenuOpen((current) => !current)}
-        >
-          {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </header>
-
-      {isMenuOpen ? (
-        <nav className="opening-mobile-menu" aria-label="Opening mobile destinations">
-          {OPENING_NAV_ITEMS.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              style={{ "--menu-item-delay": `${0.05 + index * 0.06}s` }}
-              onClick={() => enterApp(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      ) : null}
-
-      <section className="opening-hero">
-        <h1>
-          <StaggeredText text="OPEN THE" />
-          <StaggeredText baseDelay={0.5} text="MAGIC BOX" />
-        </h1>
-        <p>
-          <span className="opening-subtitle-line opening-subtitle-line-first">
-            Download, discover, transform, and create —
-          </span>{" "}
-          <span className="opening-subtitle-line">
-            your local digital toolbox, ready when you are.
-          </span>
-        </p>
-        <button className="opening-cta liquid-glass" type="button" onClick={() => enterApp("toolbox")}>
-          <span>Open the Toolbox</span>
-          <ChevronRight size={18} />
-        </button>
-      </section>
-    </main>
-  );
-}
-
 function DownloadSummary({ isRetrying, onClose, onRetryFailedImages, onSelectFailedImages, result }) {
   if (!result) {
     return null;
@@ -1457,7 +1283,6 @@ export function ToolPageLoadingFallback({ label }) {
 }
 
 export default function App() {
-  const [showOpeningPage, setShowOpeningPage] = useState(shouldShowOpeningPage);
   const [activeView, setActiveView] = useState(readStoredActiveView);
   const [lastToolboxWorldId, setLastToolboxWorldId] = useState(TOOLBOX_WORLDS[0].id);
   const [torrentSidebarWidth, setTorrentSidebarWidth] = useState(() =>
@@ -1786,7 +1611,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (showOpeningPage || activeView !== "torrents") {
+    if (activeView !== "torrents") {
       return undefined;
     }
 
@@ -1812,7 +1637,7 @@ export default function App() {
       window.clearInterval(intervalId);
       document.removeEventListener("visibilitychange", syncPolling);
     };
-  }, [activeView, refreshTorrents, showOpeningPage]);
+  }, [activeView, refreshTorrents]);
 
   useEffect(() => () => revokePreviews(), [revokePreviews]);
 
@@ -2784,33 +2609,12 @@ export default function App() {
     setActiveView("toolbox");
   }, []);
 
-  const handleEnterFromOpening = useCallback((destination) => {
-    const nextView = destination || "toolbox";
-    if (TOOLBOX_WORLDS.some((world) => world.id === nextView)) {
-      setLastToolboxWorldId(nextView);
-    }
-    setActiveView(nextView);
-    setShowOpeningPage(false);
-    try {
-      window.localStorage.setItem(OPENING_SEEN_STORAGE_KEY, "true");
-      window.localStorage.setItem(ACTIVE_VIEW_STORAGE_KEY, nextView);
-    } catch {
-    }
-  }, []);
-
   useEffect(() => {
-    if (showOpeningPage) {
-      return;
-    }
     try {
       window.localStorage.setItem(ACTIVE_VIEW_STORAGE_KEY, activeView);
     } catch {
     }
-  }, [activeView, showOpeningPage]);
-
-  if (showOpeningPage) {
-    return <OpeningPage onEnter={handleEnterFromOpening} />;
-  }
+  }, [activeView]);
 
   return (
     <main className="app-shell poster-only-shell" data-world={activeView}>

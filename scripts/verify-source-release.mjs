@@ -8,7 +8,7 @@ const files = execFileSync("git", ["ls-files", "--cached", "-z"], { encoding: "u
 if (!files.length) throw new Error("No source files are staged/tracked.");
 const roots = new Set(["src", "public", "server", "shared", "scripts", "test", "desktop", ".github"]);
 const top = new Set([".gitignore", ".gitattributes", "AGENTS.md", "Build-Mac.command", "README.md", "package.json", "package-lock.json", "index.html", "vite.config.js", "vitest.config.mjs"]);
-const docs = new Set(["docs/USER_GUIDE.md", "docs/DEVELOPMENT.md", "docs/THIRD_PARTY.md", "docs/macos.md"]);
+const docs = new Set(["docs/USER_GUIDE.md", "docs/DEVELOPMENT.md", "docs/THIRD_PARTY.md", "docs/macos.md", "docs/startup-motion-assets.md", "docs/startup-v6-generation-prompts.json"]);
 const suspicious = /(?:sk-proj-[a-zA-Z0-9_-]{25,}|github_pat_[a-zA-Z0-9_]{25,}|gh[pousr]_[a-zA-Z0-9]{30,}|AKIA[0-9A-Z]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)/;
 let bytes = 0;
 const manifest = [];

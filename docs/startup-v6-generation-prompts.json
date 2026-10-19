@@ -1,0 +1,33 @@
+{
+  "tool": "built-in Image Gen",
+  "assets": [
+    {
+      "amount": 20,
+      "name": "twenty",
+      "source": "/Users/tr1ee/.codex/generated_images/01a152ae-9971-7b01-9af0-96653d81bf73/exec-19dd7366-fa0a-40ad-9204-d9a571cfb197.png",
+      "prompt": "Use case: precise-object-edit. Asset type: ONE animation inbetween full portrait frame for natural eyelid opening. Input1 is exact closed-eye portrait edit target; input2 is half-open eye reference; input3 is original fully-open eye reference. Edit ONLY the aperture of BOTH eyelids of input1 to 20 percent open, a narrow smooth curved sliver of pink iris visible, below a low upper lid; only20%offull eyeheight. Preserve iris size, pupilposition, catchlight style, corners, alignment of both eyes. Lifting natural curved upper eyelids, soft fine burgundy painted lashes, no straight black line, no extra contour or eye socket ring, no newly painted eye shadow. Particularly keep surrounding skin brightness and color EXACTLY the same as input3; no darker patch or vignette around eyes. Keep camera/crop/headtilt/hair/eyebrows/face/mouth/body/background/butterflies identical toinput1, all noneye pixels unchanged. Keep exact original animepaintingidentityandcolors. One frame only, sameportraitaspectratio, no grid/text/splitpanel.",
+      "saved": "public/assets/magic-box-eye-twenty-v6.webp"
+    },
+    {
+      "amount": 50,
+      "name": "fifty",
+      "source": "/Users/tr1ee/.codex/generated_images/01a152ae-9971-7b01-9af0-96653d81bf73/exec-fa28b77c-8344-4af3-a716-7dc39e3a1e69.png",
+      "prompt": "Use case: precise-object-edit. Asset type: ONE animation inbetween full portrait frame for natural eyelid opening. Input1 is exact closed-eye portrait edit target; input2 is half-open eye reference; input3 is original fully-open eye reference. Edit ONLY the aperture of BOTH eyelids of input1 to 50 percent open, halfway open aperture, between narrow almond and half-open reference, smooth curved upper eyelid. Preserve iris size, pupilposition, catchlight style, corners, alignment of both eyes. Lifting natural curved upper eyelids, soft fine burgundy painted lashes, no straight black line, no extra contour or eye socket ring, no newly painted eye shadow. Particularly keep surrounding skin brightness and color EXACTLY the same as input3; no darker patch or vignette around eyes. Keep camera/crop/headtilt/hair/eyebrows/face/mouth/body/background/butterflies identical toinput1, all noneye pixels unchanged. Keep exact original animepaintingidentityandcolors. One frame only, sameportraitaspectratio, no grid/text/splitpanel.",
+      "saved": "public/assets/magic-box-eye-fifty-v6.webp"
+    },
+    {
+      "amount": 68,
+      "name": "sixtyeight",
+      "source": "/Users/tr1ee/.codex/generated_images/01a152ae-9971-7b01-9af0-96653d81bf73/exec-806bf1e1-1675-430f-8790-3b4e846c1d91.png",
+      "prompt": "Use case: precise-object-edit. Asset type: ONE animation inbetween full portrait frame for natural eyelid opening. Input1 is exact closed-eye portrait edit target; input2 is half-open eye reference; input3 is original fully-open eye reference. Edit ONLY the aperture of BOTH eyelids of input1 to 68 percent open, slightly MORE open than image2 half-open reference, approximately two thirds of full eyeheight. Preserve iris size, pupilposition, catchlight style, corners, alignment of both eyes. Lifting natural curved upper eyelids, soft fine burgundy painted lashes, no straight black line, no extra contour or eye socket ring, no newly painted eye shadow. Particularly keep surrounding skin brightness and color EXACTLY the same as input3; no darker patch or vignette around eyes. Keep camera/crop/headtilt/hair/eyebrows/face/mouth/body/background/butterflies identical toinput1, all noneye pixels unchanged. Keep exact original animepaintingidentityandcolors. One frame only, sameportraitaspectratio, no grid/text/splitpanel.",
+      "saved": "public/assets/magic-box-eye-sixtyeight-v6.webp"
+    },
+    {
+      "amount": 82,
+      "name": "eightytwo",
+      "source": "/Users/tr1ee/.codex/generated_images/01a152ae-9971-7b01-9af0-96653d81bf73/exec-48921b1d-aa9c-40c2-9353-8fb5da360d5c.png",
+      "prompt": "Use case: precise-object-edit. Asset type: ONE animation inbetween full portrait frame for natural eyelid opening. Input1 is exact closed-eye portrait edit target; input2 is half-open eye reference; input3 is original fully-open eye reference. Edit ONLY the aperture of BOTH eyelids of input1 to 82 percent open, nearly fully open, upper lids only slightly lower than image3 original, preservealloriginalirisdetail. Preserve iris size, pupilposition, catchlight style, corners, alignment of both eyes. Lifting natural curved upper eyelids, soft fine burgundy painted lashes, no straight black line, no extra contour or eye socket ring, no newly painted eye shadow. Particularly keep surrounding skin brightness and color EXACTLY the same as input3; no darker patch or vignette around eyes. Keep camera/crop/headtilt/hair/eyebrows/face/mouth/body/background/butterflies identical toinput1, all noneye pixels unchanged. Keep exact original animepaintingidentityandcolors. One frame only, sameportraitaspectratio, no grid/text/splitpanel.",
+      "saved": "public/assets/magic-box-eye-eightytwo-v6.webp"
+    }
+  ]
+}

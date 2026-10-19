@@ -64,3 +64,6 @@ Thumbs.db
 *.dylib
 *.so
 *.node
+
+!/docs/startup-motion-assets.md
+!/docs/startup-v6-generation-prompts.json

@@ -2,6 +2,8 @@
 
 Magic Box 把种子下载、网页图片和视频下载、格式转换、局域网传文件以及可选的本地 AI 助手放在一个桌面应用中。基础工具在本机处理文件；下载和模型安装需要访问相应网站。
 
+图片下载主要用于E站鉴赏，视频下载除了b和抖还能干什么也不多说了，注意身体！
+
 **安装包不包含大语言模型、语音模型、训练模型或开发者的个人数据。需要 AI 功能时，由用户在软件内查看许可和大小后自行下载。**
 
 [下载安装包](https://github.com/tr1ee/Magic-Box/releases/latest) · [操作手册](docs/USER_GUIDE.md) · [开发与打包](docs/DEVELOPMENT.md) · [Mac 构建说明](docs/macos.md) · [第三方组件](docs/THIRD_PARTY.md)

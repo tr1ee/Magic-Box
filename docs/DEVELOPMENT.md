@@ -61,3 +61,41 @@ npm run desktop:installer:basic
 4. 公开构建尚未设置商业签名或 Apple 公证，不应宣称已签名认证。
 
 未授予本项目开源许可；第三方组件的许可证不会因此改变。
+
+## 平台协作与模型边界
+
+### 分支职责
+
+`main` 继续作为 Windows 开发与发布分支，也是默认分支；Mac 使用 `codex/macos`。不再单独维护 Windows 分支。两端均从原仓库历史派生，不使用互不相关的新仓库。同步时只 fetch/拉取自己跟踪的平台分支，不能把整个 Mac 目录覆盖到 Windows。
+
+已有 Windows 工作目录先检查 `git status`，提交或备份本地工作后，再执行：
+
+```powershell
+git fetch --prune origin
+git switch main
+git pull --ff-only
+```
+
+Windows 原来就在 `main` 上开发时继续使用它即可。如果已经切换过旧的 Windows 分支，先保存本地工作，再切回 `main`；远程分支删除不会自动删除电脑上的本地分支、源码或模型。只有确认本地旧分支没有独有工作时才删除它。有分歧或本地改动时先比较，不能强制重置。
+
+Mac 同理跟踪 `origin/codex/macos`。从 GitHub 下载的 ZIP 或 Mac build kit 不保留 Git 历史，也不一定包含 Windows 源码，不能作为完整项目覆盖上传。
+
+### 共用改进
+
+`src/`、`public/`、`shared/` 和 `server/` 中的可移植逻辑属于共用候选；平台 API 仍需检查。`desktop/macos/` 是 Mac 壳，`desktop/*.cs` 和 `desktop/installer/` 是 Windows 壳。路径、浏览器发现、进程调用、GPU/模型运行库等行为按平台适配。
+
+分支上的文件不是自动共用的。功能应拆为小提交：先比较、阅读依赖，再在目标平台的功能分支 cherry-pick，测试通过后才合入对应平台：Windows 合入 `main`，Mac 合入 `codex/macos`。禁止直接互相合并整个长期平台分支。对稳定的重复功能，可随后抽取共享模块和平台适配层，统一实现需要两端测试后再推广。
+
+`codex/shared-startup` 保存本次开屏的独立候选提交：React/CSS、媒体素材、入口，以及旧开屏的替换；不包含浏览器扫描或 Mac 打包修复。Mac 分支已采用它，Windows 的 `main` 暂不采用；这是临时功能候选分支，完成移植后可再清理。Windows 移植时先查看该分支的提交，再在 Windows 功能分支选择 `feat(startup): ...` 提交；不能仅以 Mac 的测试通过宣称 Windows 已兼容。
+
+### 模型与本机数据
+
+Git 跟踪代码、模型下载/安装逻辑和配置模板，不跟踪权重或本机环境。Windows 的 `%LOCALAPPDATA%\MagicBox`、已有模型/运行环境目录，以及 Mac 的 `~/Library/Application Support/MagicBox`、`~/Downloads/MagicBox` 均不参与源码覆盖或清理。`npm ci` 仅在各自开发目录重建依赖，不从另一系统复制 `node_modules`。
+
+Mac 目前没有移植的语音引擎不能视作 Windows 功能应删除。权重格式是否通用与执行后端是否兼容是两个问题；Windows 的 CUDA/Python 环境不能直接复制到 Mac 使用。保留 Windows 原有代码与模型安装入口，Mac 单独记录支持程度。
+
+### 验收与发布
+
+共用候选先运行相关 Node/Vitest 测试与 `npm run build`。Windows 端额外构建并实际运行 WebView2 包，验证视频、遮罩、跳过、超时退出及工具首页。Mac 端验证 WebKit、签名、资源与实际启动。源码分支同步成功不等于安装包已经发布或两端运行都已验证。
+
+现有 `release.yml` 的手动运行和 `v*` 标签仍会尝试构建所有平台；本次不修改发布流程，也不打标签或创建 Release。平台分支用于独立源码更新，需要发布时再为目标平台准备并验证工作流。

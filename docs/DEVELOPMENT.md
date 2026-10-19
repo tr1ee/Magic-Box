@@ -62,21 +62,21 @@ npm run desktop:installer:basic
 
 未授予本项目开源许可；第三方组件的许可证不会因此改变。
 
-
 ## 平台协作与模型边界
 
 ### 分支职责
 
-`main` 保留原 GitHub 基线。Windows 使用 `codex/windows`，Mac 使用 `codex/macos`；两端均从原仓库历史派生，不使用互不相关的新仓库。同步时只 fetch/拉取自己跟踪的平台分支，不能把整个 Mac 目录覆盖到 Windows。
+`main` 继续作为 Windows 开发与发布分支，也是默认分支；Mac 使用 `codex/macos`。不再单独维护 Windows 分支。两端均从原仓库历史派生，不使用互不相关的新仓库。同步时只 fetch/拉取自己跟踪的平台分支，不能把整个 Mac 目录覆盖到 Windows。
 
 已有 Windows 工作目录先检查 `git status`，提交或备份本地工作后，再执行：
 
 ```powershell
-git fetch origin
-git switch --track origin/codex/windows
+git fetch --prune origin
+git switch main
+git pull --ff-only
 ```
 
-若本地分支已经存在，使用 `git switch codex/windows`；之后使用 `git pull --ff-only`。有分歧或本地改动时先比较，不能强制重置。
+Windows 原来就在 `main` 上开发时继续使用它即可。如果已经切换过旧的 Windows 分支，先保存本地工作，再切回 `main`；远程分支删除不会自动删除电脑上的本地分支、源码或模型。只有确认本地旧分支没有独有工作时才删除它。有分歧或本地改动时先比较，不能强制重置。
 
 Mac 同理跟踪 `origin/codex/macos`。从 GitHub 下载的 ZIP 或 Mac build kit 不保留 Git 历史，也不一定包含 Windows 源码，不能作为完整项目覆盖上传。
 
@@ -84,9 +84,9 @@ Mac 同理跟踪 `origin/codex/macos`。从 GitHub 下载的 ZIP 或 Mac build k
 
 `src/`、`public/`、`shared/` 和 `server/` 中的可移植逻辑属于共用候选；平台 API 仍需检查。`desktop/macos/` 是 Mac 壳，`desktop/*.cs` 和 `desktop/installer/` 是 Windows 壳。路径、浏览器发现、进程调用、GPU/模型运行库等行为按平台适配。
 
-分支上的文件不是自动共用的。功能应拆为小提交：先比较、阅读依赖，再在目标平台的功能分支 cherry-pick，测试通过后才合入该平台。禁止直接互相合并整个长期平台分支。对稳定的重复功能，可随后抽取共享模块和平台适配层，统一实现需要两端测试后再推广。
+分支上的文件不是自动共用的。功能应拆为小提交：先比较、阅读依赖，再在目标平台的功能分支 cherry-pick，测试通过后才合入对应平台：Windows 合入 `main`，Mac 合入 `codex/macos`。禁止直接互相合并整个长期平台分支。对稳定的重复功能，可随后抽取共享模块和平台适配层，统一实现需要两端测试后再推广。
 
-`codex/shared-startup` 保存本次开屏的独立候选提交：React/CSS、媒体素材、入口，以及旧开屏的替换；不包含浏览器扫描或 Mac 打包修复。Mac 分支采用它，Windows 分支暂不采用。Windows 移植时先查看该分支的提交，再在 Windows 功能分支选择 `feat(startup): ...` 提交；不能仅以 Mac 的测试通过宣称 Windows 已兼容。
+`codex/shared-startup` 保存本次开屏的独立候选提交：React/CSS、媒体素材、入口，以及旧开屏的替换；不包含浏览器扫描或 Mac 打包修复。Mac 分支已采用它，Windows 的 `main` 暂不采用；这是临时功能候选分支，完成移植后可再清理。Windows 移植时先查看该分支的提交，再在 Windows 功能分支选择 `feat(startup): ...` 提交；不能仅以 Mac 的测试通过宣称 Windows 已兼容。
 
 ### 模型与本机数据
 
@@ -102,7 +102,7 @@ Mac 目前没有移植的语音引擎不能视作 Windows 功能应删除。权�
 
 ### 2026-10-19 导入记录
 
-- Windows 分支只增加协作约定；应用源码保持 `main` 的 `240bbad` 基线，不自动带入 Mac 修复。
+- Windows 继续使用 `main`；原先额外创建的 Windows 分支仅含协作文档和媒体属性约定，已按简化方案移除，其提交仍保留在 Mac 历史中。此次仅更新说明，Windows 应用代码保持原样，不带入 Mac 修复。
 - 共用候选：新的 React/CSS 开屏、MP4/图片、旧开屏替换及测试，独立保存于 `codex/shared-startup`。媒体生成工具仍使用 Mac 的 ffmpeg 路径；Windows 运行成品动画无需重新生成，若要重制素材需适配该工具路径。
 - Mac 修复：浏览器可执行文件发现、浏览器验证及抖音嵌入数据读取；封面取消悬停切换、保持深度顺序与 WebKit 文本合成；打包临时目录及退出清理。浏览器通用逻辑和封面交互可能适用于 Windows，但尚未移植验证。
 - 保留上游较新的 Windows 基础版构建、清单生成、CI 防弹窗逻辑、0.1.1 版本和公开说明。Mac kit 未携带的 Windows 文件均保留，不作为删除导入。

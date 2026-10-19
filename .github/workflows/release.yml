@@ -9,6 +9,9 @@ jobs:
   windows:
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: powershell
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

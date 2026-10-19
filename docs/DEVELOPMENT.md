@@ -38,7 +38,7 @@ npm run desktop:installer:basic
 输出：
 
 - `release/windows-basic/MagicBox/MagicBox.exe`：基础版运行目录。
-- `release/installer/MagicBox-Setup-0.1.0-windows-x64-basic.exe`：公开分发的安装文件。
+- `release/installer/MagicBox-Setup-0.1.1-windows-x64-basic.exe`：公开分发的安装文件。
 - `release/chromium/MagicBox/MagicBox.exe`：开发者原有的完整本地构建目录，**不可直接作为无模型公共包上传**。
 
 公共构建跳过本机语音评测权重、基准记录、个人声音、训练结果和 Python 缓存；构建和安装器打包阶段都会扫描。模型文件不会使用 Git LFS 绕过排除规则。

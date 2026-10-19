@@ -12,9 +12,9 @@ Magic Box 把种子下载、网页图片和视频下载、格式转换、局域�
 
 | 文件 | 用途 |
 | --- | --- |
-| `MagicBox-Setup-0.1.0-windows-x64-basic.exe` | Windows 10/11 64 位基础版安装程序 |
-| `MagicBox-0.1.0-macOS-arm64-basic.dmg` | Apple Silicon Mac，需 macOS 14+；以实际发布附件为准 |
-| `MagicBox-0.1.0-macOS-x64-basic.dmg` | Intel Mac，需 macOS 14+；以实际发布附件为准 |
+| `MagicBox-Setup-0.1.1-windows-x64-basic.exe` | Windows 10/11 64 位基础版安装程序 |
+| `MagicBox-0.1.1-macOS-arm64-basic.dmg` | Apple Silicon Mac，需 macOS 14+；以实际发布附件为准 |
+| `MagicBox-0.1.1-macOS-x64-basic.dmg` | Intel Mac，需 macOS 14+；以实际发布附件为准 |
 | `MagicBox-Mac-Build.zip` | Mac 构建工程，供自行编译；不是安装包 |
 | `*.sha256` | 对应安装文件的 SHA-256 校验值 |
 

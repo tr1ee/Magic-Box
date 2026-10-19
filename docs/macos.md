@@ -8,7 +8,7 @@
 
 脚本自动下载校验过的 Node.js、CMake 和 llama.cpp 源码，安装锁定版本的依赖，构建前端、原生 Metal 推理运行库和 Swift 原生 WebKit 窗口，进行依赖与后台服务检查，生成并挂载检查 DMG。首次构建需要联网，原生编译可能耗时数分钟。安装后的基础功能无需安装 Node、Python 或 Homebrew。
 
-Apple Silicon Mac 输出 `release/macos/MagicBox-0.1.0-macOS-arm64-basic.dmg`；Intel Mac 输出 `release/macos/MagicBox-0.1.0-macOS-x64-basic.dmg`。请使用对应架构的 Mac 构建；本包不是 Universal 包。
+Apple Silicon Mac 输出 `release/macos/MagicBox-0.1.1-macOS-arm64-basic.dmg`；Intel Mac 输出 `release/macos/MagicBox-0.1.1-macOS-x64-basic.dmg`。请使用对应架构的 Mac 构建；本包不是 Universal 包。
 
 构建成功后，打开 DMG，将 MagicBox.app 拖到 Applications。构建目录也包含可运行的 `.app`。包使用本地临时签名，未使用 Developer ID 签名和 Apple 公证；向其他 Mac 分发时可能需要在系统设置 → 隐私与安全性中选择“仍要打开”。
 

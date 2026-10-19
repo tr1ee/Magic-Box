@@ -1,5 +1,6 @@
 param([switch]$Basic)
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\build-hash.ps1"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $portableDir = if ($Basic) { Join-Path $repoRoot "release\windows-basic\MagicBox" } else { Join-Path $repoRoot "release\chromium\MagicBox" }
@@ -7,7 +8,8 @@ $installerRoot = Join-Path $repoRoot "release\installer"
 $packageDir = Join-Path $installerRoot "MagicBox"
 $setupStub = Join-Path $installerRoot "MagicBoxSetup.stub.exe"
 $payloadZip = Join-Path $installerRoot "MagicBox.payload.zip"
-$setupExe = Join-Path $installerRoot $(if ($Basic) { "MagicBox-Setup-0.1.0-windows-x64-basic.exe" } else { "MagicBox-Setup-0.1.0.exe" })
+$version = (Get-Content (Join-Path $repoRoot "package.json") -Raw | ConvertFrom-Json).version
+$setupExe = Join-Path $installerRoot $(if ($Basic) { "MagicBox-Setup-$version-windows-x64-basic.exe" } else { "MagicBox-Setup-$version.exe" })
 $webViewBootstrapper = Join-Path $repoRoot "vendor\MicrosoftEdgeWebView2Setup.exe"
 $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 
@@ -140,10 +142,10 @@ try {
 
 Remove-Item -LiteralPath $setupStub, $payloadZip -Force
 $setupItem = Get-Item -LiteralPath $setupExe
-$hash = Get-FileHash -LiteralPath $setupExe -Algorithm SHA256
+$hash = Get-BuildSha256 $setupExe
 $setupSizeMb = $setupItem.Length / 1MB
 Remove-Item -LiteralPath $packageDir -Recurse -Force
 Write-Host "Built single-file installer: $setupExe"
 Write-Host ("Size: {0:N1} MB" -f $setupSizeMb)
-Write-Host "SHA256: $($hash.Hash)"
+Write-Host "SHA256: $hash"
 Write-Host "Removed temporary installer staging files."

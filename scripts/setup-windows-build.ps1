@@ -1,4 +1,5 @@
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\build-hash.ps1"
 $ProgressPreference = "SilentlyContinue"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
@@ -10,7 +11,7 @@ function Get-VerifiedDownload($Url, $Destination, $Sha256) {
         Invoke-WebRequest -UseBasicParsing -Uri $Url -OutFile ($Destination + ".download")
         Move-Item -LiteralPath ($Destination + ".download") -Destination $Destination -Force
     }
-    if ((Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha256) {
+    if ((Get-BuildSha256 $Destination) -ne $Sha256) {
         throw "Download checksum mismatch: $Destination"
     }
 }
@@ -26,14 +27,14 @@ $runtime = Join-Path $repoRoot "vendor\llama\b9637"
 $runtimeValid = $true
 foreach ($file in $catalog.runtime.requiredFiles.PSObject.Properties) {
     $target = Join-Path $runtime $file.Name
-    if (-not (Test-Path $target) -or (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.Value) { $runtimeValid = $false; break }
+    if (-not (Test-Path $target) -or (Get-BuildSha256 $target) -ne $file.Value) { $runtimeValid = $false; break }
 }
 if (-not $runtimeValid) {
     $llamaZip = Join-Path $cacheDir "llama-b9637.zip"
     Get-VerifiedDownload $catalog.runtime.source $llamaZip $catalog.runtime.sha256
     Expand-Archive -LiteralPath $llamaZip -DestinationPath $runtime -Force
     foreach ($file in $catalog.runtime.requiredFiles.PSObject.Properties) {
-        if ((Get-FileHash -LiteralPath (Join-Path $runtime $file.Name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.Value) { throw "Inference runtime verification failed: $($file.Name)" }
+        if ((Get-BuildSha256 (Join-Path $runtime $file.Name)) -ne $file.Value) { throw "Inference runtime verification failed: $($file.Name)" }
     }
 }
 $videoDir = Join-Path $repoRoot "vendor\python\bin"

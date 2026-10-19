@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "language": "zh-CN",
+  "cases": [
+    { "id": "short", "text": "好的，我已经准备好了。" },
+    { "id": "explanation", "text": "我检查了你导入的三个文件，其中第一个文件需要转换格式。" },
+    { "id": "long", "text": "本地语音系统需要同时处理识别、推理、合成和播放。为了让长回答保持自然，我们会把稳定文本持续提交给同一个合成会话，并用有状态重采样器维护每个音频块之间的相位连续性。播放器会记录缓冲深度、欠载次数和采样总数，用户打断时则立即让旧 generation 失效。这样可以区分文本生成慢、语音合成慢、进程通信抖动和播放设备欠载，而不是用越来越大的缓冲掩盖根因。" },
+    { "id": "punctuation", "text": "先确认输入；然后检查状态：是否就绪？如果没有，就停止！" },
+    { "id": "numbers", "text": "测试日期是 2026 年 8 月 18 日，目标成功率为 99.5%，版本号是 5.0，地址是 127.0.0.1。" },
+    { "id": "mixed", "text": "Qwen 3.5 9B 使用 Q4_K_M 量化，并通过 llama.cpp 在本地运行。" },
+    { "id": "filename", "text": "private-agent-voice-system-technical-report-2026-08-18.md" },
+    { "id": "windows-path", "text": "D:\\MagicBox\\assistant\\models" },
+    { "id": "markdown", "text": "## 结果\n- 第一项\n- 第二项\n```js\nconsole.log('screen only')\n```\n[详情](https://example.com)" },
+    { "id": "citation", "text": "结论来自本地资料 [S1]，详细页码已经显示在屏幕上。" },
+    { "id": "calm", "style": "calm", "text": "请放心，我会先保存当前状态，再继续下一步。" },
+    { "id": "reminder", "style": "expressive", "text": "提醒一下：这个操作需要你确认后才会执行。" }
+  ],
+  "scenarios": [
+    { "id": "long-playback", "durationMinutes": [2, 5] },
+    { "id": "barge-in", "interruptAtSeconds": [0.5, 2, 10] },
+    { "id": "rapid-turns", "turns": 20 },
+    { "id": "devices", "outputSampleRates": [24000, 44100, 48000] }
+  ]
+}

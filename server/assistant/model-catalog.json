@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "runtime": {
+    "id": "llama.cpp-b9637-win-vulkan-x64",
+    "version": "b9637",
+    "archive": "llama-b9637-bin-win-vulkan-x64.zip",
+    "source": "https://github.com/ggml-org/llama.cpp/releases/download/b9637/llama-b9637-bin-win-vulkan-x64.zip",
+    "sizeBytes": 38556528,
+    "sha256": "a353945604cffdac3d0d6da6392de78ca565a531a6f2ff3521f44b9b7c6e553f",
+    "requiredFiles": {
+      "llama-server.exe": "06444801bb1dc38a848bb5a527728c4ea14ad2aa45ce7e81a29a5fb5d2560eaf",
+      "llama-server-impl.dll": "097384489be0f64ea464954c90da54ff1c3f1bb1bc1b4fac4b0d31995797837d",
+      "llama-common.dll": "dc726973b628015349a565677b93b524c12ec4779f19409f1b584bf4e307a738",
+      "llama.dll": "83e47cd11d0f741fb711531d8757d3e9091d134b401822ac5a68a486b763288f",
+      "ggml.dll": "055fb99504d6ed24e83d13063d0c55f08e68c46e7b18943acd8b31bc77529949",
+      "ggml-base.dll": "089cfed8037675fe725ca24bc49aca429cc1bba648f34f35ee7e41bb73c196c3",
+      "ggml-vulkan.dll": "656319c67419460166020bc69f07ebd730e42fa4e31f229ebc9d6889c29ea377",
+      "ggml-cpu-alderlake.dll": "cf88d171a0d8d58f2e6526fd989627ef16c3be3235aa0124373959ae498e01ff",
+      "ggml-cpu-cannonlake.dll": "e6a246b3c7a0a58e9d5640f7ca619f64c8200f9dc83d9c50a08bfabf6cfa0a3f",
+      "ggml-cpu-cascadelake.dll": "ac99237b81e81538b8f2a3fd2ac04ea2a7c59594fc392a37cc2160cbecb42dff",
+      "ggml-cpu-cooperlake.dll": "9e00d1a66219e72a86fa02483682483f108c7e2f6d1e6b315d4d20a68db287d7",
+      "ggml-cpu-haswell.dll": "d119208de391b1b3f22b031f5f13589025fe6f16dc87c8889acfb434d7a5ad09",
+      "ggml-cpu-icelake.dll": "cad444b6c73734bc806fe88a4503b9dd2c63f685217cde186945042bcc8dc469",
+      "ggml-cpu-ivybridge.dll": "d712055835c2ef1902d13b715112deb11900bb02b7ce7b4b264e73924e58ad2f",
+      "ggml-cpu-piledriver.dll": "060d70eeffb440d0fea2f928565628df438d08e911e56388e8b409b3d1465423",
+      "ggml-cpu-sandybridge.dll": "4ccfceba675efdb065b8ab06fc1a71cc3eed3ba8316e0b32676eb9a193846698",
+      "ggml-cpu-sapphirerapids.dll": "21502d5a6d145391b5988c40289e7ec757fa59a266e665cba8b2f690614209ea",
+      "ggml-cpu-skylakex.dll": "1090242b2d2ed08f425cadcdb3a3c70ff82f9d1ba98d070ee38238258f7873f4",
+      "ggml-cpu-sse42.dll": "d291fa0137c3fbc22ce99b90d730e63cd5215b8d349ba8d9de63bad92c9746a0",
+      "ggml-cpu-x64.dll": "04f31fbca37126171429cbfda8be3233a5d06fd247c03a301f0a0b92cc46583d",
+      "ggml-cpu-zen4.dll": "13b8558779f9cb470c5448c7583f161c7f7324482589a4afacbbb43942989875",
+      "libomp140.x86_64.dll": "0fd4dccc657658b3a743e3931e80973fea04bb259f900c032328efa1e6d47e61"
+    }
+  },
+  "models": [
+    {
+      "id": "qwen3.5-9b-q4-k-m",
+      "manifestRevision": "2026-08-07.1",
+      "displayName": "Qwen 3.5 9B (Recommended)",
+      "capability": "generation",
+      "filename": "Qwen_Qwen3.5-9B-Q4_K_M.gguf",
+      "source": "https://huggingface.co/bartowski/Qwen_Qwen3.5-9B-GGUF/resolve/main/Qwen_Qwen3.5-9B-Q4_K_M.gguf?download=true",
+      "allowedDownloadHosts": ["huggingface.co", ".huggingface.co", ".hf.co", ".xethub.hf.co"],
+      "sourcePage": "https://huggingface.co/bartowski/Qwen_Qwen3.5-9B-GGUF/blob/main/Qwen_Qwen3.5-9B-Q4_K_M.gguf",
+      "sizeBytes": 6169341984,
+      "sha256": "d784ce9eda1a5a7b51e8f705a9e6310844bf4f173654d115823c775fdea56d43",
+      "license": {
+        "id": "apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen3.5-9B/blob/main/LICENSE",
+        "redistributionAllowed": true
+      },
+      "memory": {
+        "minimumRamBytes": 17179869184,
+        "recommendedRamBytes": 25769803776
+      },
+      "contextTokens": 16384,
+      "maxOutputTokens": 2048,
+      "gpuLayers": 8,
+      "disableThinking": true
+    },
+    {
+      "id": "qwen2.5-1.5b-instruct-q4-k-m",
+      "manifestRevision": "2026-07-17.1",
+      "displayName": "Qwen 2.5 1.5B Instruct (Lite)",
+      "capability": "generation",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "source": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf?download=true",
+      "allowedDownloadHosts": ["huggingface.co", ".huggingface.co", ".hf.co"],
+      "sourcePage": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "sizeBytes": 1117320736,
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "license": {
+        "id": "apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/blob/main/LICENSE",
+        "redistributionAllowed": true
+      },
+      "memory": {
+        "minimumRamBytes": 4294967296,
+        "recommendedRamBytes": 8589934592
+      },
+      "contextTokens": 8192,
+      "maxOutputTokens": 1024
+    },
+    {
+      "id": "qwen3-embedding-0.6b-q8-0",
+      "manifestRevision": "2026-07-17.1",
+      "displayName": "Qwen 3 Embedding 0.6B (Lite)",
+      "capability": "embeddings",
+      "filename": "Qwen3-Embedding-0.6B-Q8_0.gguf",
+      "source": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF/resolve/main/Qwen3-Embedding-0.6B-Q8_0.gguf?download=true",
+      "allowedDownloadHosts": ["huggingface.co", ".huggingface.co", ".hf.co"],
+      "sourcePage": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF",
+      "sizeBytes": 639150592,
+      "sha256": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+      "license": {
+        "id": "apache-2.0",
+        "url": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF/blob/main/LICENSE",
+        "redistributionAllowed": true
+      },
+      "memory": {
+        "minimumRamBytes": 4294967296,
+        "recommendedRamBytes": 8589934592
+      },
+      "contextTokens": 8192,
+      "dimensions": 1024,
+      "documentPrefix": "",
+      "queryPrefix": "Instruct: Given a user question, retrieve relevant passages from their private local files that answer the question.\nQuery: "
+    }
+  ]
+}

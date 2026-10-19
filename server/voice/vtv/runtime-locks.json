@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-26T02:00:00.000Z",
+  "rvc-v2-finetuned": {
+    "runtimeVersion": "2.3.260718-8f2fdbf",
+    "sourceRepository": "RVC-Project/Retrieval-based-Voice-Conversion-WebUI",
+    "sourceRevision": "8f2fdbf",
+    "sourceArchiveUrl": "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI/archive/8f2fdbf.zip",
+    "sourceArchiveSha256": "48b808f60e52ebd82fdc9e204d8c4669b0f562bc63a5065ec6b4391d0a41a91c",
+    "pythonVersion": "3.12.x",
+    "torchVersion": "2.7.1+cu118",
+    "torchaudioVersion": "2.7.1+cu118",
+    "cudaRuntime": "11.8",
+    "patchedTreeHash": "e7566bda8b50e2b168e2156a71fdb58fd00e0ef2138f7e10f2b02c139b8a5d55",
+    "assets": {
+      "hubertConfigSha256": "0346950779dfb7f9316fa74ed846e2b8a22a08eedfdc5387b73f327cb1a4a7cf",
+      "hubertPreprocessorSha256": "7c1976a680fb7acc757cd36fb08eef878fa36c70b4c9d2d595df9c608bbbbf0e",
+      "hubertModelSha256": "cc8c20f4b90a520757260197a3ff2505705a7adbd20ad9eeaa4e1a9b38442ef5",
+      "rmvpeSha256": "6d62215f4306e3ca278246188607209f09af3dc77ed4232efdd069798c4ec193",
+      "pretrainedF0GSha256": "b5d51f589cc3632d4eae36a315b4179397695042edc01d15312e1bddc2b764a4",
+      "pretrainedF0DSha256": "2269b73c7a4cf34da09aea99274dabf99b2ddb8a42cbfb065fb3c0aa9a2fc748"
+    },
+    "modelWeightsLicense": "record-per-import"
+  },
+  "yingmusic-svc-zero-shot-v1": {
+    "runtimeVersion": "4974a80c6044c4557059548409379f6365129f88",
+    "sourceRepository": "GiantAILab/YingMusic-SVC",
+    "sourceRevision": "4974a80c6044c4557059548409379f6365129f88",
+    "sourceArchiveUrl": "https://github.com/GiantAILab/YingMusic-SVC/archive/4974a80c6044c4557059548409379f6365129f88.zip",
+    "sourceArchiveSha256": "7e5b6972d39103ec7e419694751ba0443544d8ea77f9118e89b7e50c01c59803",
+    "pythonVersion": "3.10.x",
+    "torchVersion": "2.4.0+cu118",
+    "torchaudioVersion": "2.4.0+cu118",
+    "cudaRuntime": "11.8",
+    "torchOpenMpDllSha256": "0fd4dccc657658b3a743e3931e80973fea04bb259f900c032328efa1e6d47e61",
+    "modelWeightsSource": "https://huggingface.co/GiantAILab/YingMusic-SVC",
+    "modelWeightsLicense": "cc-by-nc-4.0",
+    "patchedTreeHash": "0d17735bc4c56bd0728023b33d7cc2c389e0c924c99890d98e683c5fbed04216",
+    "checkpointSha256": "8e4b83e18669b046be79e7c6a979ad33f162d2a75c40213d998ad5687d7c6054",
+    "configSha256": "8e12dfa7d2e5ebf3cd8602ff9d20c03399d3f165d384018980de4675077e9b09",
+    "BigVGANRevision": "95a9d1dcb12906c03edd938d77b9333d6ded7dfb",
+    "WhisperRevision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+    "CAMPPlusHash": "3388cf5fd3493c9ac9c69851d8e7a8badcfb4f3dc631020c4961371646d5ada8",
+    "RMVPEHash": "6d62215f4306e3ca278246188607209f09af3dc77ed4232efdd069798c4ec193"
+  }
+}

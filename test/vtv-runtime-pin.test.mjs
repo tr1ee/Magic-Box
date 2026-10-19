@@ -1,0 +1,35 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+
+test("VTV installer pins Seed-VC and cannot replace the validated PyTorch stack while adding FCPE", async () => {
+  const script = await fs.readFile(new URL("../scripts/install-voice-seed-vc.ps1", import.meta.url), "utf8");
+  assert.match(script, /51383efd921027683c89e5348211d93ff12ac2a8/iu);
+  assert.match(script, /safe\.directory=/iu);
+  assert.match(script, /torchfcpe==0\.0\.4/iu);
+  assert.match(script, /rotary-embedding-torch==0\.8\.9/iu);
+  assert.match(script, /pip install --no-deps @fcpePackages/iu);
+  assert.match(script, /torch-2\.4\.0\+cu121/iu);
+  assert.match(script, /fcpeReady/iu);
+  assert.match(script, /roformerReady/iu);
+  const worker = await fs.readFile(new URL("../server/voice_engine_worker_seed_vc.py", import.meta.url), "utf8");
+  assert.match(worker, /f0_condition_forced_by_pinned_44k_checkpoint/iu);
+  assert.match(worker, /analyze_waveform_artifacts/iu);
+  assert.match(worker, /analyze-waveform-artifacts/iu);
+  assert.match(worker, /separate_stems_roformer/iu);
+  assert.match(worker, /bs-roformer-viperx-ep317-sdr12\.9755/iu);
+  assert.match(worker, /roformerReady/iu);
+  assert.match(worker, /doubled-duration Speech WAV/iu);
+  assert.match(worker, /command\[command\.index\("--f0-condition"\) \+ 1\] = "True"/iu);
+  const separatorInstall = await fs.readFile(new URL("../scripts/install-vtv-roformer.ps1", import.meta.url), "utf8");
+  assert.match(separatorInstall, /model_bs_roformer_ep_317_sdr_12\.9755\.ckpt/iu);
+  assert.match(separatorInstall, /5b84f37e8d444c8cb30c79d77f613a41c05868ff9c9ac6c7049c00aefae115aa/iu);
+  const bakeoff = await fs.readFile(new URL("../scripts/run-vtv-separator-bakeoff.mjs", import.meta.url), "utf8");
+  assert.match(bakeoff, /analysisSourceAudioPath/iu);
+  assert.match(bakeoff, /"-ar", "44100", "-ac", "2"/iu);
+  assert.match(bakeoff, /reconstruction\s*\n\s*\}\);/iu);
+  const separatorManifest = JSON.parse(await fs.readFile(new URL("../server/voice/model-manifests/bs-roformer-viperx-ep317.json", import.meta.url), "utf8"));
+  assert.equal(separatorManifest.schemaVersion, "vtv-separator-manifest-v1");
+  assert.match(separatorManifest.modelSha256, /^[a-f0-9]{64}$/iu);
+  assert.match(separatorManifest.configSha256, /^[a-f0-9]{64}$/iu);
+});

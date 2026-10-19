@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f6f78" />
+    <title>Magic Box File Transfer</title>
+    <style>
+      :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; color: #10243f; background: #edf8f7; }
+      * { box-sizing: border-box; }
+      body { min-width: 320px; min-height: 100vh; margin: 0; background: radial-gradient(circle at 12% 0%, #fff 0 10%, transparent 38%), linear-gradient(165deg, #effaf8, #dff2f0); }
+      button, input { font: inherit; }
+      button { border: 0; cursor: pointer; }
+      .shell { width: min(720px, 100%); min-height: 100vh; margin: auto; padding: max(26px, env(safe-area-inset-top)) 18px max(32px, env(safe-area-inset-bottom)); }
+      .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+      .brand-mark { display: grid; width: 48px; height: 48px; place-items: center; color: white; background: linear-gradient(135deg, #0d7c86, #45b8ab); border-radius: 15px; box-shadow: 0 12px 26px #0c72772e; }
+      .brand-mark svg { width: 25px; }
+      .brand strong { display: block; font-family: Georgia, serif; font-size: 1.25rem; }
+      .brand span { color: #5f7281; font-size: .9rem; }
+      .card { padding: 22px; background: #ffffffeb; border: 1px solid #c8e4e1; border-radius: 24px; box-shadow: 0 18px 50px #245d6720; }
+      h1, h2, p { margin: 0; }
+      h1 { max-width: 520px; font-family: Georgia, serif; font-size: clamp(2rem, 9vw, 3rem); line-height: 1.02; }
+      .intro { margin-top: 12px; color: #61717f; line-height: 1.55; }
+      .pair-form { display: grid; gap: 14px; margin-top: 26px; }
+      label { display: grid; gap: 7px; color: #526878; font-size: .88rem; font-weight: 700; }
+      input { width: 100%; min-height: 52px; padding: 0 16px; color: #10243f; background: #f7fbfb; border: 1px solid #bfdcda; border-radius: 15px; outline: none; }
+      input:focus { border-color: #118894; box-shadow: 0 0 0 4px #1188941c; }
+      #pair-code { font-size: 1.55rem; font-weight: 800; letter-spacing: .28em; text-align: center; }
+      .primary { min-height: 54px; padding: 0 18px; color: white; background: linear-gradient(135deg, #087681, #15989b); border-radius: 16px; font-weight: 800; box-shadow: 0 12px 25px #0876812c; }
+      .primary:disabled { opacity: .55; cursor: wait; }
+      .error { min-height: 22px; margin-top: 10px; color: #b8443d; font-size: .9rem; }
+      #transfer-view { display: none; gap: 16px; }
+      .connected { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+      .connected-badge { display: inline-flex; align-items: center; gap: 8px; color: #087681; font-weight: 800; }
+      .dot { width: 9px; height: 9px; background: #22aa79; border-radius: 50%; box-shadow: 0 0 0 5px #22aa7918; }
+      .device-name { color: #667887; font-size: .9rem; }
+      .section { margin-top: 16px; }
+      .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+      .section h2 { font-family: Georgia, serif; font-size: 1.35rem; }
+      .section-head span { color: #72818d; font-size: .82rem; }
+      .drop { position: relative; display: grid; min-height: 132px; place-items: center; padding: 20px; text-align: center; background: #eff9f8; border: 1px dashed #65b3ae; border-radius: 18px; overflow: hidden; }
+      .drop input { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+      .drop strong { display: block; margin-bottom: 6px; color: #0c727c; }
+      .drop span { color: #6a7c88; font-size: .9rem; }
+      .progress { display: none; margin-top: 12px; }
+      .progress-head { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: .86rem; font-weight: 700; }
+      .track { height: 9px; overflow: hidden; background: #dbecea; border-radius: 999px; }
+      .track i { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #0c8290, #4bb8a5); border-radius: inherit; transition: width .15s ease; }
+      .files { display: grid; gap: 9px; }
+      .file { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 13px 14px; background: #f7fbfb; border: 1px solid #d8e9e7; border-radius: 15px; }
+      .file strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .file small { color: #778692; }
+      .download { padding: 10px 13px; color: #087681; background: #e5f5f3; border-radius: 11px; font-size: .86rem; font-weight: 800; text-decoration: none; }
+      .empty { padding: 22px; color: #778793; text-align: center; background: #f7fbfb; border: 1px dashed #d2e4e2; border-radius: 15px; }
+      .notice { margin-top: 14px; color: #0a806c; font-size: .9rem; font-weight: 700; }
+      @media (max-width: 480px) { .shell { padding-inline: 12px; } .card { padding: 18px; border-radius: 20px; } .file { grid-template-columns: minmax(0, 1fr); } .download { text-align: center; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 21h14"/></svg></span>
+        <div><strong>Magic Box</strong><span>Private local file transfer</span></div>
+      </header>
+
+      <section id="pair-view" class="card">
+        <h1>Connect to your Windows PC.</h1>
+        <p class="intro">Enter the six-digit code shown in Magic Box. Your files stay on this local network.</p>
+        <form id="pair-form" class="pair-form">
+          <label>Your device name<input id="device-name" value="Apple device" autocomplete="off" maxlength="60" /></label>
+          <label>Pairing code<input id="pair-code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" placeholder="000000" /></label>
+          <button id="pair-button" class="primary" type="submit">Connect securely</button>
+        </form>
+        <p id="pair-error" class="error" role="alert"></p>
+      </section>
+
+      <section id="transfer-view">
+        <div class="card">
+          <div class="connected"><span class="connected-badge"><i class="dot"></i>Connected</span><span id="connected-device" class="device-name"></span></div>
+          <h1>Move files both ways.</h1>
+          <p class="intro">Keep this page open until each transfer finishes.</p>
+
+          <div class="section">
+            <div class="section-head"><h2>Send to Windows</h2><span>Photos, videos, documents</span></div>
+            <label class="drop">
+              <input id="file-input" type="file" multiple />
+              <span><strong>Choose files from this device</strong><span>They save directly into the Magic Box transfer folder.</span></span>
+            </label>
+            <div id="upload-progress" class="progress">
+              <div class="progress-head"><span id="upload-label">Uploading</span><span id="upload-percent">0%</span></div>
+              <div class="track"><i id="upload-bar"></i></div>
+            </div>
+            <p id="upload-notice" class="notice" role="status"></p>
+          </div>
+        </div>
+
+        <div class="card section">
+          <div class="section-head"><h2>From Windows</h2><span id="file-count">0 files</span></div>
+          <div id="shared-files" class="files"></div>
+        </div>
+      </section>
+    </main>
+    <script>
+      const token = decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() || "");
+      const storageKey = `magicBox.transfer.${token}`;
+      // Camera/in-app browser privacy modes may deny storage. Pairing should
+      // still work for the current page instead of aborting script startup.
+      const savedAuth = {
+        get() { try { return sessionStorage.getItem(storageKey) || ""; } catch { return ""; } },
+        set(value) { try { sessionStorage.setItem(storageKey, value); } catch {} },
+        clear() { try { sessionStorage.removeItem(storageKey); } catch {} }
+      };
+      let auth = savedAuth.get();
+      let deviceName = "Apple device";
+      let pollTimer = null;
+      const pairView = document.getElementById("pair-view");
+      const transferView = document.getElementById("transfer-view");
+      const pairForm = document.getElementById("pair-form");
+      const pairButton = document.getElementById("pair-button");
+      const pairError = document.getElementById("pair-error");
+      const fileInput = document.getElementById("file-input");
+      const sharedFiles = document.getElementById("shared-files");
+
+      function bytes(value) {
+        if (!value) return "0 B";
+        const units = ["B", "KB", "MB", "GB", "TB"];
+        const index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
+        return `${(value / (1024 ** index)).toFixed(index ? 1 : 0)} ${units[index]}`;
+      }
+
+      function escapeHtml(value) {
+        const node = document.createElement("span");
+        node.textContent = value;
+        return node.innerHTML;
+      }
+
+      function showTransfer() {
+        pairView.style.display = "none";
+        transferView.style.display = "grid";
+        document.getElementById("connected-device").textContent = deviceName;
+      }
+
+      function showPair() {
+        auth = "";
+        savedAuth.clear();
+        pairView.style.display = "block";
+        transferView.style.display = "none";
+      }
+
+      function renderSession(session) {
+        const files = session.sharedFiles || [];
+        document.getElementById("file-count").textContent = `${files.length} file${files.length === 1 ? "" : "s"}`;
+        if (!files.length) {
+          sharedFiles.innerHTML = '<p class="empty">Nothing shared yet. Add files in Magic Box on Windows.</p>';
+          return;
+        }
+        sharedFiles.innerHTML = files.map((file) => {
+          const url = `/api/files/${encodeURIComponent(file.id)}/download?token=${encodeURIComponent(token)}&auth=${encodeURIComponent(auth)}`;
+          return `<div class="file"><div><strong>${escapeHtml(file.name)}</strong><small>${bytes(file.size)}</small></div><a class="download" href="${url}">Download</a></div>`;
+        }).join("");
+      }
+
+      async function refresh() {
+        if (!auth) return;
+        try {
+          const response = await fetch(`/api/session?token=${encodeURIComponent(token)}`, { headers: { Authorization: `Bearer ${auth}` } });
+          if (response.status === 401 || response.status === 404) {
+            showPair();
+            return;
+          }
+          const payload = await response.json();
+          renderSession(payload.session);
+        } catch {
+          // A brief Wi-Fi interruption should not unpair the device.
+        }
+      }
+
+      pairForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        pairError.textContent = "";
+        pairButton.disabled = true;
+        deviceName = document.getElementById("device-name").value.trim() || "Apple device";
+        try {
+          const response = await fetch("/api/pair", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, code: document.getElementById("pair-code").value, deviceName })
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error || "Could not pair with Magic Box.");
+          auth = payload.auth;
+          savedAuth.set(auth);
+          showTransfer();
+          renderSession(payload.session);
+          clearInterval(pollTimer);
+          pollTimer = setInterval(refresh, 1800);
+        } catch (error) {
+          pairError.textContent = error.message;
+        } finally {
+          pairButton.disabled = false;
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const files = Array.from(fileInput.files || []);
+        if (!files.length || !auth) return;
+        const form = new FormData();
+        files.forEach((file) => form.append("files", file));
+        const progress = document.getElementById("upload-progress");
+        const bar = document.getElementById("upload-bar");
+        const percent = document.getElementById("upload-percent");
+        const label = document.getElementById("upload-label");
+        const notice = document.getElementById("upload-notice");
+        progress.style.display = "block";
+        notice.textContent = "";
+        label.textContent = files.length === 1 ? files[0].name : `${files.length} files`;
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/upload");
+        xhr.setRequestHeader("Authorization", `Bearer ${auth}`);
+        xhr.setRequestHeader("X-Transfer-Token", token);
+        xhr.upload.onprogress = (event) => {
+          const value = event.lengthComputable ? Math.round((event.loaded / event.total) * 100) : 0;
+          bar.style.width = `${value}%`;
+          percent.textContent = `${value}%`;
+        };
+        xhr.onload = () => {
+          fileInput.value = "";
+          if (xhr.status >= 200 && xhr.status < 300) {
+            bar.style.width = "100%";
+            percent.textContent = "100%";
+            notice.textContent = `${files.length} file${files.length === 1 ? "" : "s"} saved to Windows.`;
+            setTimeout(() => { progress.style.display = "none"; }, 1400);
+          } else {
+            const payload = (() => { try { return JSON.parse(xhr.responseText); } catch { return {}; } })();
+            notice.textContent = payload.error || "Upload failed. Keep both devices connected and try again.";
+          }
+          refresh();
+        };
+        xhr.onerror = () => { notice.textContent = "Connection lost during upload. Reconnect to the same network and try again."; };
+        xhr.send(form);
+      });
+
+      if (auth) {
+        showTransfer();
+        refresh();
+        pollTimer = setInterval(refresh, 1800);
+      } else {
+        showPair();
+      }
+    </script>
+  </body>
+</html>

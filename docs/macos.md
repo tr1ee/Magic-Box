@@ -10,7 +10,7 @@
 
 Apple Silicon Mac 输出 `release/macos/MagicBox-0.1.1-macOS-arm64-basic.dmg`；Intel Mac 输出 `release/macos/MagicBox-0.1.1-macOS-x64-basic.dmg`。请使用对应架构的 Mac 构建；本包不是 Universal 包。
 
-构建成功后，打开 DMG，将 MagicBox.app 拖到 Applications。构建目录也包含可运行的 `.app`。包使用本地临时签名，未使用 Developer ID 签名和 Apple 公证；向其他 Mac 分发时可能需要在系统设置 → 隐私与安全性中选择“仍要打开”。
+构建成功后，打开 DMG，将 MagicBox.app 拖到 Applications。更新时替换已有的 `/Applications/MagicBox.app`，只保留这一个系统入口。临时构建位于 `.cache/macos-build.noindex`，打包退出时自动清理，`release/macos` 只保留 DMG 等发布文件。包使用本地临时签名，未使用 Developer ID 签名和 Apple 公证；向其他 Mac 分发时可能需要在系统设置 → 隐私与安全性中选择“仍要打开”。
 
 ## 包含的基础功能
 
@@ -20,7 +20,7 @@ Apple Silicon Mac 输出 `release/macos/MagicBox-0.1.1-macOS-arm64-basic.dmg`；
 - 原生文件上传、保存目录选择、Finder 打开文件、下载记录。
 - Private Assistant 的本地资料管理及模型目录。
 
-动态网页扫描和需要浏览器验证的视频站点原有实现依赖 Windows Edge，尚未完成 Mac 适配；不承诺这些站点在 Mac 上均可用。
+视频扫描与浏览器验证会自动识别 `/Applications` 或 `~/Applications` 中安装的 Chrome、Edge 或 Chromium。点击验证按钮后，在独立浏览器窗口完成站点验证或登录，扫描会自动继续；专用会话与日常浏览器资料分开保存。站点是否提供视频仍取决于访问权限和站点响应。图片的动态网页扫描仍需单独适配 Mac。
 
 ## 模型按需下载
 
@@ -31,6 +31,10 @@ Apple Silicon Mac 输出 `release/macos/MagicBox-0.1.1-macOS-arm64-basic.dmg`；
 **语音克隆、语音训练和流式语音的自动安装器目前仅支持 Windows。Mac 版点击安装会提示平台限制，不会运行 Windows 安装脚本。** 这些功能需要后续单独适配 macOS，不能仅靠下载模型启用。
 
 设置与后续下载的模型位于 `~/Library/Application Support/MagicBox`；默认下载位置是 `~/Downloads/MagicBox`。升级 `.app` 不会覆盖用户资料。启动日志位于 `~/Library/Application Support/MagicBox/desktop.log`。
+
+## 启动动画
+
+每次新启动窗口时播放约 9 秒的开屏：青蓝手绘笔画同时起笔、同时收笔，各条线从不同端点沿路径连续画出；头发、脸部和闭眼睫毛保留细节，身体的肩、袖、手臂、衣领和衣身轮廓保持可见，只省略部分内部褶皱。线稿完成后短暂停留，再用约 180 毫秒让彩图从线稿下连续显现，不做亮度或模糊突跳。睁眼由十二张关键姿态经过肤色校准、单次眼部合成和运动插帧生成 60 fps 连续动画，以一张完整画面播放，避免眼周羽化叠层变暗；人物和背景通过原图轮廓遮罩分成独立图层，保持人物尺寸不变地左右平移，背景反向小幅移动形成视差；背景光晕、粒子和放大的粉色蝴蝶继续移动，随后显示 Magic Box 欢迎语并自动进入上次使用的页面。点击右下角按钮或按 Esc 可随时跳过；切回同一窗口不会重播。系统开启“减少动态效果”时使用约 1 秒的静态版本。动画在本地渲染，无需网络；素材加载失败或超时会自动进入应用。
 
 ## 验证边界
 

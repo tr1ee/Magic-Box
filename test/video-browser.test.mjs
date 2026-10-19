@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, test } from "node:test";
-import { captureDouyinVideoData, douyinDetailMatchesVideo, isDouyinDetailAccessBlocked, isDouyinDetailResponse } from "../server/video-browser.mjs";
+import { captureDouyinVideoData, douyinDetailMatchesVideo, isDouyinDetailAccessBlocked, isDouyinDetailResponse, navigateDouyinVideoPage } from "../server/video-browser.mjs";
 import { acquireVerificationProfile } from "../server/video-verification-browser.mjs";
 
 const cleanups = [];
@@ -14,6 +14,36 @@ async function temporaryRoot() {
   return directory;
 }
 const canonicalUrl = "https://www.douyin.com/video/12345";
+
+test("manual verification recovers a refused detail route through the exact video's official modal", async () => {
+  const visited = [];
+  await navigateDouyinVideoPage("12345", {
+    headless: false, navigate: async url => {
+      visited.push(url);
+      return visited.length === 1 ? { errorText: "net::ERR_HTTP_RESPONSE_CODE_FAILURE" } : {};
+    }
+  });
+  assert.deepEqual(visited, [canonicalUrl, "https://www.douyin.com/?modal_id=12345"]);
+});
+
+test("visible verification keeps waiting through a site's replacement navigation or refused fallback", async () => {
+  for (const fallback of ["net::ERR_ABORTED", "net::ERR_HTTP_RESPONSE_CODE_FAILURE"]) {
+    let visits = 0;
+    await navigateDouyinVideoPage("12345", { headless: false, navigate: async () => ({ errorText: ++visits === 1 ? "net::ERR_HTTP_RESPONSE_CODE_FAILURE" : fallback }) });
+    assert.equal(visits, 2);
+  }
+  let visits = 0;
+  await navigateDouyinVideoPage("12345", { headless: false, navigate: async () => { visits++; return { errorText: "net::ERR_ABORTED" }; } });
+  assert.equal(visits, 1);
+});
+
+test("silent scans do not open an alternate login route and network errors retain their cause", async () => {
+  for (const [headless, errorText] of [[true, "net::ERR_HTTP_RESPONSE_CODE_FAILURE"], [false, "net::ERR_NAME_NOT_RESOLVED"], [false, "net::ERR_CERT_AUTHORITY_INVALID"]]) {
+    let visits = 0;
+    await assert.rejects(navigateDouyinVideoPage("12345", { headless, navigate: async () => { visits++; return { errorText }; } }), error => error.code === "DOUYIN_SESSION_REQUIRED" && error.message.includes(errorText));
+    assert.equal(visits, 1);
+  }
+});
 
 test("browser capture only accepts Douyin detail responses from the real host", () => {
   assert.equal(isDouyinDetailResponse("https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=12345"), true);

@@ -15,11 +15,15 @@ const arch = process.arch;
 if (!["arm64", "x64"].includes(arch)) throw new Error("Unsupported Mac architecture.");
 const output = path.join(root, "release", "macos");
 await fs.mkdir(output, { recursive: true });
-const work = await fs.mkdtemp(path.join(output, `build-${arch}-`));
+// Disposable bundles must not accumulate beside distributable downloads.
+const stagingRoot = path.join(root, ".cache", "macos-build.noindex");
+await fs.mkdir(stagingRoot, { recursive: true });
+const work = await fs.mkdtemp(path.join(stagingRoot, `build-${arch}-`));
 const app = path.join(work, "MagicBox.app");
 const contents = path.join(app, "Contents");
 const resources = path.join(contents, "Resources");
 const payload = path.join(resources, "app");
+try {
 await fs.mkdir(path.join(contents, "MacOS"), { recursive: true });
 await copySources(root, payload, ["server", "shared", "dist", "desktop/macos"], ["package.json", "package-lock.json", "README.md", "docs/USER_GUIDE.md", "docs/THIRD_PARTY.md", "docs/macos.md"]);
 await copyProductionDependencies(root, payload);
@@ -204,3 +208,16 @@ await fs.copyFile(pending, dmg);
 await fs.writeFile(`${dmg}.sha256`, `${await sha256(dmg)}  ${path.basename(dmg)}\n`);
 await fs.writeFile(`${dmg}.json`, JSON.stringify({ ...report, arch, version, dmg, signature: "ad-hoc", notarized: false, dependencySmoke: true, serverSmoke: true, mountedImageVerified: true }, null, 2));
 console.log(JSON.stringify({ dmg, ...report }, null, 2));
+} finally {
+  const lsregister = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister";
+  for (const bundle of [app, path.join(work, "image", "MagicBox.app"), path.join(work, "mounted", "MagicBox.app")]) {
+    await command(lsregister, ["-u", bundle]).catch(() => {});
+  }
+  // A failed detach must not cause recursive deletion through a mounted image.
+  const mounted = await fs.stat(path.join(work, "mounted")).catch(() => null);
+  if (mounted && mounted.dev !== (await fs.stat(work)).dev) {
+    console.warn(`Build image remains mounted; retained staging directory: ${work}`);
+  } else {
+    await fs.rm(work, { recursive: true, force: true });
+  }
+}

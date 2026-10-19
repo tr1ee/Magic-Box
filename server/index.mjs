@@ -5017,7 +5017,12 @@ async function extractDouyinVideosFromPage(pageUrl, options = {}) {
         headless: !verifying,
         profileRoot: options.profileRoot,
         signal: options.signal,
-        timeoutMs: verifying ? 150000 : 25000
+        timeoutMs: verifying ? 150000 : 25000,
+        inspectPage: ({ html, finalUrl }) => {
+          if (new URL(finalUrl).origin !== "https://www.douyin.com") return null;
+          const item = collectDouyinVideoItems(douyinPageData(html)).find(entry => douyinItemId(entry) === videoId);
+          return item ? { aweme_detail: item } : null;
+        }
       });
       checkCancelled();
       if (capture?.data) {

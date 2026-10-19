@@ -2,11 +2,10 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { WebSocket } from "ws";
 import { acquireVerificationProfile } from "./video-verification-browser.mjs";
+import { findVideoBrowserExecutable } from "./video-browser-executable.mjs";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const failure = (code, message, cause) => Object.assign(new Error(message, cause ? { cause } : undefined), { code });
 const childIsRunning = (child) => Boolean(child?.pid && child.exitCode == null && child.signalCode == null);
@@ -18,30 +17,6 @@ function waitForChildExit(child, timeoutMs) {
     const timer = setTimeout(finished, timeoutMs);
     child.once("exit", finished);
   });
-}
-
-async function findVideoBrowser(executablePath) {
-  if (executablePath) {
-    if (await fs.stat(executablePath).then((stat) => stat.isFile()).catch(() => false)) return executablePath;
-    throw failure("VIDEO_BROWSER_UNAVAILABLE", "The selected video browser could not be found.");
-  }
-  const candidates = [];
-  for (const directory of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA].filter(Boolean)) {
-    candidates.push(path.join(directory, "Google", "Chrome", "Application", "chrome.exe"));
-    candidates.push(path.join(directory, "Microsoft", "Edge", "Application", "msedge.exe"));
-  }
-  // Portable builds ship a Chromium runtime as well as the desktop launcher.
-  const fixedRoot = path.join(root, "vendor", "webview2-fixed");
-  for (const version of await fs.readdir(fixedRoot).catch(() => [])) {
-    const versionRoot = path.join(fixedRoot, version);
-    for (const runtime of await fs.readdir(versionRoot).catch(() => [])) {
-      candidates.push(path.join(versionRoot, runtime, "msedgewebview2.exe"));
-    }
-  }
-  for (const executable of candidates) {
-    if (await fs.stat(executable).then((stat) => stat.isFile()).catch(() => false)) return executable;
-  }
-  throw Object.assign(new Error("Install Chrome or Edge to scan Douyin pages that load video data dynamically."), { code: "VIDEO_BROWSER_UNAVAILABLE" });
 }
 
 export function isDouyinDetailResponse(urlInput) {
@@ -62,10 +37,26 @@ export function isDouyinDetailAccessBlocked(urlInput, status, videoId) {
   return new URL(urlInput).searchParams.get("aweme_id") === String(videoId);
 }
 
+export async function navigateDouyinVideoPage(videoId, { navigate, headless }) {
+  const navigation = await navigate(`https://www.douyin.com/video/${videoId}`);
+  // A page-triggered replacement navigation can abort the original CDP command.
+  // Keep observing the requested video's data instead of closing its window.
+  if (!navigation.errorText || navigation.errorText === "net::ERR_ABORTED") return;
+  if (!headless && navigation.errorText === "net::ERR_HTTP_RESPONSE_CODE_FAILURE") {
+    // Douyin can refuse the direct detail route while its official homepage
+    // still opens the exact video in a modal, including the site's login UI.
+    const fallback = await navigate(`https://www.douyin.com/?modal_id=${videoId}`);
+    if (!fallback.errorText || ["net::ERR_ABORTED", "net::ERR_HTTP_RESPONSE_CODE_FAILURE"].includes(fallback.errorText)) return;
+    navigation.errorText = fallback.errorText;
+  }
+  const reason = /^net::ERR_[A-Z0-9_]+$/.test(navigation.errorText) ? ` (${navigation.errorText})` : "";
+  throw failure("DOUYIN_SESSION_REQUIRED", `The Douyin video page could not load${reason}. Check the connection and retry browser verification.`);
+}
+
 // Observe the site's own player response. A persistent profile, when supplied,
 // belongs to MagicBox; the user's ordinary browser/cookie store is never read.
 // Call with headless:false only after the user explicitly requests verification.
-export async function captureDouyinVideoData(videoId, { timeoutMs = 25000, executablePath, headless = true, profileRoot, signal } = {}) {
+export async function captureDouyinVideoData(videoId, { timeoutMs = 25000, executablePath, headless = true, profileRoot, signal, inspectPage } = {}) {
   if (!/^\d{5,30}$/.test(String(videoId))) throw new Error("Invalid Douyin video ID.");
   if (signal?.aborted) throw failure("VIDEO_VERIFICATION_CANCELLED", "Douyin browser scanning was cancelled.");
   const isHeadless = headless !== false;
@@ -104,7 +95,7 @@ export async function captureDouyinVideoData(videoId, { timeoutMs = 25000, execu
     signal?.addEventListener("abort", cancelled, { once: true });
     if (signal?.aborted) cancelled();
     timer = setTimeout(() => stop(timeoutError()), timeout);
-    const executable = await race(findVideoBrowser(executablePath));
+    const executable = await race(findVideoBrowserExecutable(executablePath, { allowBundledRuntime: true }));
     // A persistent profile may retain an endpoint from an earlier launch.
     await race(fs.unlink(path.join(profile, "DevToolsActivePort")).catch((error) => { if (error.code !== "ENOENT") throw error; }));
     if (stoppedError) throw stoppedError;
@@ -135,7 +126,11 @@ export async function captureDouyinVideoData(videoId, { timeoutMs = 25000, execu
       if (message.id) {
         const request = pending.get(message.id);
         pending.delete(message.id);
-        if (message.error) request?.reject(failure("VIDEO_BROWSER_UNAVAILABLE", "Video browser command failed."));
+        if (message.error) {
+          const changedContext = /execution context was destroyed|cannot find context|inspected target navigated/i.test(String(message.error.message || ""));
+          request?.reject(failure(changedContext ? "VIDEO_BROWSER_CONTEXT_CHANGED" : "VIDEO_BROWSER_UNAVAILABLE", changedContext
+            ? "The browser page changed during inspection." : "Video browser command failed."));
+        }
         else request?.resolve(message.result);
         return;
       }
@@ -170,9 +165,29 @@ export async function captureDouyinVideoData(videoId, { timeoutMs = 25000, execu
     await race(send("Network.enable", { maxTotalBufferSize: 12 * 1024 * 1024, maxResourceBufferSize: 8 * 1024 * 1024 }, sessionId));
     await race(send("Page.enable", {}, sessionId));
     if (!isHeadless) await race(send("Target.activateTarget", { targetId }));
-    const navigation = await race(send("Page.navigate", { url: canonicalUrl }, sessionId));
-    if (navigation.errorText) throw failure("DOUYIN_SESSION_REQUIRED", "The Douyin video page could not load. Check the link and retry browser verification.");
-    return { data: await race(captured), userAgent };
+    await navigateDouyinVideoPage(videoId, {
+      headless: isHeadless, navigate: url => race(send("Page.navigate", { url }, sessionId))
+    });
+    if (typeof inspectPage !== "function") return { data: await race(captured), userAgent };
+    while (true) {
+      const data = await race(Promise.race([captured, delay(750).then(() => null)]));
+      if (data) return { data, userAgent };
+      // Some page routes embed the video's data in RENDER_DATA and never send
+      // an aweme/detail request. Inspect only the site's current document.
+      let snapshot;
+      try {
+        snapshot = await race(send("Runtime.evaluate", {
+          expression: `location.origin === "https://www.douyin.com" && document.documentElement?.outerHTML.length <= 8 * 1024 * 1024 ? JSON.stringify({html:document.documentElement.outerHTML,finalUrl:location.href}) : null`,
+          returnByValue: true
+        }, sessionId));
+      } catch (error) {
+        if (error.code === "VIDEO_BROWSER_CONTEXT_CHANGED") continue;
+        throw error;
+      }
+      if (snapshot.exceptionDetails || typeof snapshot.result?.value !== "string") continue;
+      const inspection = await race(Promise.resolve().then(() => inspectPage(JSON.parse(snapshot.result.value))));
+      if (douyinDetailMatchesVideo(inspection, videoId)) return { data: inspection, userAgent };
+    }
   } finally {
     closing = true;
     clearTimeout(timer);

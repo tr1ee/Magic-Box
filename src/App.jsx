@@ -1006,7 +1006,6 @@ function WorldPoster({ active, offset, onActivate, onOpen, world }) {
       data-world={world.id}
       onClick={() => onOpen(world.id)}
       onFocus={onActivate}
-      onMouseEnter={onActivate}
       style={{
         "--carousel-offset": offset,
         "--carousel-depth": `${distance * -128}px`,
@@ -1193,7 +1192,7 @@ export function ToolboxHome({ initialWorldId = TOOLBOX_WORLDS[0].id, onNavigate 
     <section className="toolbox-home poster-library-home" aria-label="Magic Box function worlds">
       <div
         className={classNames("poster-carousel-stage", isDragging && "is-dragging")}
-        aria-label="Tool carousel. Hover a cover or use the arrow keys to rotate."
+        aria-label="Tool carousel. Use the wheel, drag, or arrow keys to rotate."
         aria-roledescription="carousel"
         onClickCapture={handleClickCapture}
         onKeyDown={handleKeyDown}
@@ -1237,7 +1236,7 @@ export function ToolboxHome({ initialWorldId = TOOLBOX_WORLDS[0].id, onNavigate 
               />
             ))}
           </div>
-          <span className="poster-carousel-hint">Hover · wheel · drag</span>
+          <span className="poster-carousel-hint">Wheel · drag · arrows</span>
         </footer>
       </div>
     </section>

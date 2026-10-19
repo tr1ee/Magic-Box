@@ -110,6 +110,22 @@ test("Douyin short-link verification retains the original link and canonical pla
   }
 });
 
+test("Douyin verification reads the requested video embedded in the rendered page without a detail API request", async () => {
+  const result = await scanVideoPage(canonicalUrl, { verifyInBrowser: true }, {
+    douyinCaptureVideoData: async (id, options) => {
+      const html = `<script id="RENDER_DATA" type="application/json">${encodeURIComponent(JSON.stringify({ items: [capture("1111111111111111111").data.aweme_detail, capture().data.aweme_detail] }))}</script>`;
+      assert.equal(options.inspectPage({ html, finalUrl: "https://unrelated.example/" }), null);
+      const data = options.inspectPage({ html, finalUrl: `https://www.douyin.com/jingxuan?modal_id=${id}` });
+      assert.equal(data.aweme_detail.aweme_id, videoId);
+      assert.equal(options.inspectPage({ html: "<html>Login required</html>", finalUrl: canonicalUrl }), null);
+      return { data, userAgent: "Rendered-fixture-browser" };
+    }
+  });
+  assert.equal(result.count, 1);
+  assert.equal(result.videos[0].url, mediaUrl);
+  assert.equal(result.videos[0].httpHeaders["User-Agent"], "Rendered-fixture-browser");
+});
+
 test("Douyin short-link verification rejects off-site redirects including lookalike domains", async () => {
   for (const host of ["unrelated.example", "douyin.com.unrelated.example", "fake-douyin.com"]) {
     await assert.rejects(scanVideoPage(shortUrl, { verifyInBrowser: true }, {

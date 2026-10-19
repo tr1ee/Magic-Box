@@ -100,3 +100,7 @@ bash Build-Mac.command
 Magic Box is a local desktop toolbox for torrent/media downloads, image and document processing, format conversion, LAN file transfer, and an optional local AI assistant. Public source and basic installers exclude model weights, trained checkpoints, and personal data. Users install optional models from the app after reviewing their size and license.
 
 Windows x64 is the primary supported desktop platform. macOS 14+ builds use a native WebKit shell; voice engine installers and Windows browser-verification flows are not yet ported. Download available installers from [Releases](https://github.com/tr1ee/Magic-Box/releases), and see the linked guides for installation and building. No open-source license has been granted for this repository.
+
+## 当前 Mac 分支状态
+
+本分支保存本地 Mac 的开屏、浏览器查找/验证、抖音页面数据提取、工具封面交互和 WebKit 合成修复。Mac 浏览器扫描识别 Chrome、Edge 或 Chromium；语音引擎安装器尚未完成 Mac 移植。模型权重不随源码提交。Windows 发布脚本和较新的 0.1.1 基线保持原有实现；本次没有发布或重新安装应用。

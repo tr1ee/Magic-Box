@@ -152,6 +152,22 @@ describe("manual verification local browser integration", { skip: !process.env.M
   }
   async function options(extra = {}) { return { profileRoot: await temporaryRoot(), executablePath: process.env.MAGICBOX_BROWSER_TEST_EXECUTABLE, headless: true, timeoutMs: 15000, ...extra }; }
 
+  it("automatically discovers the installed browser and captures a local page", { skip: !["darwin", "win32"].includes(process.platform) }, async () => {
+    const site = await fixtureServer();
+    const capture = await captureVerifiedVideoPage(`${site}/normal`, await options({ executablePath: undefined }));
+    assert.equal(capture.finalUrl, `${site}/normal`);
+    assert.match(capture.html, /Ordinary video page fixture/);
+  });
+
+  it("opens a visible verification window using automatic browser discovery", { skip: process.env.MAGICBOX_BROWSER_TEST_VISIBLE !== "1" }, async () => {
+    const site = await fixtureServer();
+    const capture = await captureVerifiedVideoPage(`${site}/normal`, await options({
+      executablePath: undefined, headless: false,
+      inspectPage: async page => page.html.includes('id="player-data"') ? { verified: true } : null
+    }));
+    assert.equal(capture.inspection.verified, true);
+  });
+
   it("captures a stable rendered local page and leaves its persistent profile reusable", async () => {
     const site = await fixtureServer();
     const settings = await options();

@@ -49,6 +49,26 @@ describe("Magic Box toolbox carousel", () => {
       .toHaveAttribute("data-world", "assistant");
   });
 
+  it("does not rotate when covers move beneath a stationary pointer", () => {
+    render(<ToolboxHome initialWorldId="assistant" onNavigate={vi.fn()} />);
+    const stage = screen.getByRole("region", { name: /tool carousel/i });
+    const assistant = screen.getByRole("button", { name: "Open Private Assistant" });
+    const torrent = screen.getByRole("button", { name: "Open Torrent Downloader" });
+    const images = screen.getByRole("button", { name: "Open Image Downloader" });
+
+    fireEvent.mouseEnter(torrent);
+    fireEvent.mouseLeave(torrent);
+    fireEvent.mouseEnter(images);
+    expect(assistant).toHaveAttribute("aria-current", "true");
+
+    fireEvent.wheel(stage, { deltaY: 120 });
+    expect(torrent).toHaveAttribute("aria-current", "true");
+    fireEvent.mouseLeave(images);
+    fireEvent.mouseEnter(assistant);
+    fireEvent.mouseEnter(images);
+    expect(torrent).toHaveAttribute("aria-current", "true");
+  });
+
   it("gives Private Assistant a dedicated Quiet Observatory cover", () => {
     const styles = readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8");
 

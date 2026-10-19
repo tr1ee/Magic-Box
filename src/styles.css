@@ -1938,6 +1938,9 @@ a {
 
 .poster-carousel-stage .world-poster:hover,
 .poster-carousel-stage .world-poster:focus-visible {
+  /* The generic poster hover rule below uses z-index: 4. Keep the carousel's
+     depth order when a cover is hovered or focused, especially the center one. */
+  z-index: var(--carousel-z);
   transform:
     translate(-50%, calc(-50% - 5px))
     translateX(calc(var(--carousel-offset) * clamp(178px, 17vw, 272px) + var(--carousel-drag-offset, 0px)))
@@ -6322,6 +6325,7 @@ body {
   font-weight: 720;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  transform: translateZ(0);
 }
 
 .world-poster-copy {
@@ -6334,6 +6338,9 @@ body {
   gap: 8px;
   padding: clamp(26px, 3.2vw, 42px) clamp(18px, 2.25vw, 32px) clamp(20px, 2.4vw, 32px);
   background: linear-gradient(180deg, transparent, rgba(1, 7, 6, 0.58) 18%, rgba(1, 7, 6, 0.94) 52%, #010706);
+  /* WebKit must composite the complete caption together during cover motion,
+     rather than only promoting the animated arrow inside it. */
+  transform: translateZ(0);
 }
 
 .world-poster-world {

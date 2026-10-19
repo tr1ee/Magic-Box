@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { WebSocket } from "ws";
+import { findVideoBrowserExecutable } from "./video-browser-executable.mjs";
 
 const MAX_HTML_CHARS = 8 * 1024 * 1024;
 const activeProfiles = new Set();
@@ -124,20 +125,6 @@ export async function acquireVerificationProfile(profileRoot, pageUrl) {
   }
 }
 
-async function findBrowser(executablePath) {
-  const candidates = executablePath ? [executablePath] : [];
-  if (!executablePath) {
-    for (const directory of [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA].filter(Boolean)) {
-      candidates.push(path.join(directory, "Google", "Chrome", "Application", "chrome.exe"));
-      candidates.push(path.join(directory, "Microsoft", "Edge", "Application", "msedge.exe"));
-    }
-  }
-  for (const candidate of candidates) {
-    if (await fs.stat(candidate).then((stat) => stat.isFile()).catch(() => false)) return candidate;
-  }
-  throw failure("VIDEO_BROWSER_UNAVAILABLE", "Install Chrome or Edge to open a browser verification window.");
-}
-
 // Call only after an explicit user action. This opens a visible browser and
 // waits for the user to complete the site's own verification. It never clicks
 // a challenge, reads cookies, or uses the user's ordinary browser profile.
@@ -175,7 +162,7 @@ export async function captureVerifiedVideoPage(pageUrl, { profileRoot, timeoutMs
     timer = setTimeout(() => stop(failure(sawChallenge ? "VIDEO_VERIFICATION_REQUIRED" : "VIDEO_VERIFICATION_TIMEOUT", sawChallenge
       ? "The site still requires browser verification. Open verification again and complete the site's check."
       : "The browser did not finish loading this page in time. Try verification again.")), timeout);
-    const executable = await race(findBrowser(executablePath));
+    const executable = await race(findVideoBrowserExecutable(executablePath));
     // A stale endpoint belongs to an earlier launch. Never attach to it.
     await fs.unlink(path.join(lease.profile, "DevToolsActivePort")).catch((error) => { if (error.code !== "ENOENT") throw error; });
     if (stoppedError) throw stoppedError;
